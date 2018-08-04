@@ -205,5 +205,35 @@ class Index
 		dump($str) ;
 		file_put_contents('data.txt', $str) ;
 	}
+
+
+	/*
+		返回当前天气
+	*/
+	public function getWether() 
+	{
+
+
+		//初始化
+		$curl = curl_init() ;
+		//设置url
+		// $url = "http://wthrcdn.etouch.cn/weather_mini?city=".urlencode("深圳") ;
+		$url = "http://www.baidu.com" ;
+		echo $url ;
+		curl_setopt($curl, CURLOPT_URL, $url) ;
+		curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1) ;//文件流形式返回
+		//采集
+		$output = curl_exec($curl) ;
+		//关闭cURL
+		curl_close($curl) ;
+
+	
+		// echo $output ;	
+		$arr = json_decode($output,true) ;
+		var_dump($arr) ;
+
+
+	
+	}
 	
 }
