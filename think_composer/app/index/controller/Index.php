@@ -443,5 +443,121 @@ class Index
 
 
 	}
+
+	/*
+		群发接口
+	*/
+	public function sendMsgAll() 
+	{
+		//获取全局access_token
+		$access_token = $this->getSessionAccessToken() ;
+		$url = "https://api.weixin.qq.com/cgi-bin/message/mass/preview?access_token=".$access_token ;
+		//组装群发接口 array
+		$data = array(
+			'touser'=>'ordYy0e6ITMlHC6zJ9tT3zzj79iQ',//用户openID
+			'text'=>array('content'=>"真仙非假仙 根基远无边") ,//文本内容
+			'msgtype'=>'text'//消息类型
+		) ; 
+		// 将组装的 array转成json 汉字不转义
+		$dataJson = json_encode($data,JSON_UNESCAPED_UNICODE) ;
+		//cURL post请求
+		$res = $this->http_curl($url,'post','json',$dataJson) ;
+		dump($res) ;
+	}
+
+	/*
+		网页授权
+	*/
+	//获取用户openid
+	public function getBaseInfo() 
+	{
+		//获取code
+		$appid = "wxae6ea3e45f074997" ;
+		/*
+		调用下面url之后  返回code到  此处的$redirect_uri
+		接口权限 - 网页服务 - 网页帐号 - 网页授权获取用户基本信息”的配置选项中，修改授权回调域名 donglingjiu.top
+		*/
+		$redirect_uri = urlencode("http://donglingjiu.top/index/index/getUserOpenId");
+		$url = "https://open.weixin.qq.com/connect/oauth2/authorize?appid=".$appid."&redirect_uri=".$redirect_uri."&response_type=code&scope=snsapi_base&state=123#wechat_redirect" ;
+		/*
+			scope=snsapi_base 静默跳转 
+		*/
+		header('location:'.$url) ;
+		
+	}
+	public function getUserOpenId() 
+	{
+		//获取网页授权access_token
+
+		$appid = "wxae6ea3e45f074997" ;
+		$appsecret = "2cbafacadab5493a73144fd08a517f52" ;
+		/*
+			scope=snsapi_base
+			静默跳转之后 传过来的code
+		*/
+		$code = $_GET['code'] ;
+ 		$url = "https://api.weixin.qq.com/sns/oauth2/access_token?appid=".$appid."&secret=".$appsecret."&code=".$code."&grant_type=authorization_code" ;
+		//拉取用户openid
+		$res = $this->http_curl($url,'get') ;
+		dump($res) ;
+		/*
+			此处测试  
+			百度 草料二维码 
+			http://donglingjiu.top/index/index/getBaseInfo 
+			生成二维码之后 手机扫码
+		*/
+	}
+
+	/*
+		详细授权  获取用户 昵称 地理位置 籍贯 头像...
+	*/
+	public function getUserDetail() 
+	{
+		//获取code
+		$appid = "wxae6ea3e45f074997" ;
+		/*
+		调用下面url之后  返回code到  此处的$redirect_uri
+		接口权限 - 网页服务 - 网页帐号 - 网页授权获取用户基本信息”的配置选项中，修改授权回调域名 donglingjiu.top
+		*/
+		$redirect_uri = urlencode("http://donglingjiu.top/index/index/getUserInfo");
+		$url = "https://open.weixin.qq.com/connect/oauth2/authorize?appid=".$appid."&redirect_uri=".$redirect_uri."&response_type=code&scope=snsapi_userinfo&state=123#wechat_redirect" ;
+		/*
+			scope=snsapi_userinfo 手动授权 获取详细信息
+		*/
+		header('location:'.$url) ;
+	}
+	public function getUserInfo() 
+	{
+		//获取网页授权access_token
+
+		$appid = "wxae6ea3e45f074997" ;
+		$appsecret = "2cbafacadab5493a73144fd08a517f52" ;
+		/*
+			scope=snsapi_userinfo
+			手动授权 跳转之后 传过来的code
+		*/
+		$code = $_GET['code'] ;
+ 		$url = "https://api.weixin.qq.com/sns/oauth2/access_token?appid=".$appid."&secret=".$appsecret."&code=".$code."&grant_type=authorization_code" ;
+		$res = $this->http_curl($url,'get') ;
+		$access_token = $res['access_token'] ;
+		$openid = $res['openid'] ;
+		//拉取用户详细信息
+		$url1 = "https://api.weixin.qq.com/sns/userinfo?access_token=".$access_token."&openid=".$openid."&lang=zh_CN" ;
+		$res = $this->http_curl($url1) ;
+		dump($res) ;
+		/*
+			此处测试  
+			百度 草料二维码 
+			http://donglingjiu.top/index/index/getUserDetail 
+			生成二维码之后 手机扫码
+		*/
+	}
+
+
+	public function ceshi() 
+	{
+		dump("123") ;
+	}
+
 	
 }
